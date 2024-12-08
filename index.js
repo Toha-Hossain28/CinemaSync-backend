@@ -9,9 +9,6 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.DB_USER);
-console.log(process.env.DB_PASS);
-
 // mongodb
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.djqwt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -29,6 +26,21 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const movieCollection = client.db("cinemaSync").collection("movies");
+
+    app.get("/movies", async (req, res) => {
+      const result = await movieCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/movies", async (req, res) => {
+      const movie = req.body;
+      console.log(movie);
+      const result = await movieCollection.insertOne(movie);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -36,7 +48,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
