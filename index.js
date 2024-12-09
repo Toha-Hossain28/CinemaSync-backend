@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const { ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -34,10 +35,96 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/movies/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await movieCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post("/movies", async (req, res) => {
       const movie = req.body;
       console.log(movie);
       const result = await movieCollection.insertOne(movie);
+      res.send(result);
+    });
+
+    app.delete("/movies/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await movieCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.put("/movies/:id", async (req, res) => {
+      const id = req.params.id;
+      const movie = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          moviePoster: movie.moviePoster,
+          movieTitle: movie.movieTitle,
+          genre: movie.genre,
+          duration: movie.duration,
+          releaseYear: movie.releaseYear,
+          rating: movie.rating,
+          summary: movie.summary,
+        },
+      };
+      const result = await movieCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // store the user info
+    const userCollection = client.db("cinemaSync").collection("users");
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+      console.log(result);
+    });
+
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const user = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: user.name,
+          username: user.username,
+          photoURL: user.photoURL,
+          email: user.email,
+          password: user.password,
+          favoriteMovies: user.favoriteMovies,
+        },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
 
