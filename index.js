@@ -1,8 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const { ObjectId } = require("mongodb");
-require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -108,25 +108,6 @@ async function run() {
       res.send(result);
       // console.log(result);
     });
-
-    // app.put("/users/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const user = req.body;
-    //   const filter = { _id: new ObjectId(id) };
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $set: {
-    //       name: user.name,
-    //       username: user.username,
-    //       photoURL: user.photoURL,
-    //       email: user.email,
-    //       password: user.password,
-    //       favoriteMovies: user.favoriteMovies,
-    //     },
-    //   };
-    //   const result = await userCollection.updateOne(filter, updateDoc, options);
-    //   res.send(result);
-    // });
 
     // u[date user with eamil]
     app.put("/users/:email", async (req, res) => {
